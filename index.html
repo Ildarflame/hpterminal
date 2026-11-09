@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HP Terminal</title>
+<meta name="description" content="HP Terminal is a mobile-first trading terminal for Hyperliquid perps: crypto and stock markets, one ticket, the fee shown before every order.">
+<meta name="theme-color" content="#252422">
+<meta property="og:title" content="HP Terminal">
+<meta property="og:description" content="Trade Hyperliquid perps from your phone.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230E1116'/%3E%3Cg stroke-width='16' stroke-linecap='round'%3E%3Cline x1='152' y1='196' x2='152' y2='364' stroke='%23F6465D'/%3E%3Cline x1='256' y1='148' x2='256' y2='332' stroke='%237C8CFF'/%3E%3Cline x1='360' y1='100' x2='360' y2='300' stroke='%232EBD85'/%3E%3C/g%3E%3Crect x='116' y='224' width='72' height='104' rx='14' fill='%23F6465D'/%3E%3Crect x='220' y='180' width='72' height='120' rx='14' fill='%237C8CFF'/%3E%3Crect x='324' y='128' width='72' height='140' rx='14' fill='%232EBD85'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nata+Sans:wght@400;500;600;700&family=Lilex:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* The app's own Column look, so the site reads as the product. */
+  :root {
+    --bg: #252422;
+    --surface: #2F2E2B;
+    --raised: #383733;
+    --line: #44423E;
+    --text: #F1EFEA;
+    --muted: #B3AFA6;
+    --long: #43C98C;
+    --short: #E5534B;
+    --short-text: #FF9A90;
+    --ink: #111111;
+    --accent: #A9C7E8;
+    --warn: #F0B84A;
+    --font-ui: "Nata Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --font-num: "Lilex", ui-monospace, SFMono-Regular, Menlo, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 400 17px/1.55 var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+  header.site { display: flex; align-items: center; gap: 12px; padding: 22px 0; }
+  header.site svg { width: 34px; height: 34px; display: block; }
+  header.site .name { font-weight: 700; font-size: 19px; letter-spacing: -0.01em; }
+
+  main { display: grid; gap: 48px; padding: 28px 0 72px; align-items: center; }
+  @media (min-width: 960px) {
+    main { grid-template-columns: minmax(0, 1fr) 380px; gap: 72px; padding: 56px 0 96px; }
+  }
+
+  h1 {
+    margin: 0 0 22px;
+    font-weight: 700;
+    font-size: clamp(40px, 6.4vw, 72px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    max-width: 11ch;
+    text-wrap: balance;
+  }
+  .lede { margin: 0 0 30px; max-width: 34em; color: var(--muted); font-size: 19px; }
+  .lede strong { color: var(--text); font-weight: 600; }
+
+  ul.facts { list-style: none; margin: 0 0 34px; padding: 0; display: grid; gap: 14px; max-width: 36em; }
+  ul.facts li { padding-left: 22px; position: relative; }
+  /* A small candle, the app's own mark, instead of a bullet. */
+  ul.facts li::before {
+    content: ""; position: absolute; left: 4px; top: 0.42em; width: 6px; height: 12px;
+    border-radius: 2px; background: var(--long);
+  }
+  ul.facts li:nth-child(2)::before { background: var(--accent); }
+  ul.facts li:nth-child(3)::before { background: var(--short); }
+
+  .status { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 15px; margin: 0; }
+  .badge {
+    border: 1px solid color-mix(in srgb, var(--warn) 60%, transparent); color: var(--warn);
+    border-radius: 6px; padding: 1px 8px; font-size: 13px; font-weight: 600;
+  }
+
+  /* The ticket: the app's order panel, working, sending nothing. */
+  .ticket {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+    padding: 16px; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  }
+  .coin { display: flex; align-items: center; gap: 12px; padding: 4px 4px 14px; border-bottom: 1px solid var(--line); }
+  .coin .logo { width: 34px; height: 34px; border-radius: 50%; background: #F7931A; display: grid; place-items: center; }
+  .coin .logo svg { width: 20px; height: 20px; }
+  .coin .sym { font-weight: 700; font-size: 20px; line-height: 1.1; }
+  .coin .sub { color: var(--muted); font-size: 13px; }
+  .coin .px { margin-left: auto; text-align: right; font-family: var(--font-num); }
+  .coin .last { font-size: 22px; font-weight: 600; transition: color 0.6s; }
+  .coin .last.up { color: var(--long); transition: none; }
+  .coin .last.down { color: var(--short-text); transition: none; }
+  .coin .chg { color: var(--short-text); font-size: 13px; }
+
+  .sides { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 14px 0 10px; }
+  .sides button {
+    font: 700 17px var(--font-ui); min-height: 48px; border-radius: 10px; border: 0; cursor: pointer;
+    background: var(--raised); color: var(--muted);
+  }
+  .sides button[data-side="long"][aria-pressed="true"] { background: var(--long); color: var(--ink); }
+  .sides button[data-side="short"][aria-pressed="true"] { background: var(--short); color: var(--ink); }
+  .sides button[data-side="short"][aria-pressed="false"] { color: var(--short-text); }
+
+  .row { display: grid; grid-template-columns: 84px 1fr; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .row .label { color: var(--muted); font-size: 14px; line-height: 1.2; }
+  .row .label b { display: block; color: var(--text); font: 600 18px var(--font-num); }
+  .chips { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; }
+  .chips button {
+    font: 500 15px var(--font-num); min-height: 42px; border-radius: 8px; cursor: pointer;
+    background: var(--raised); color: var(--muted); border: 1px solid transparent;
+  }
+  .chips button[aria-pressed="true"] { color: var(--text); border-color: var(--accent); font-weight: 600; }
+
+  .fee { display: flex; justify-content: space-between; color: var(--muted); font-size: 14px; padding: 6px 4px 12px; }
+  .fee span:last-child { font-family: var(--font-num); color: var(--text); }
+
+  .order {
+    width: 100%; min-height: 54px; border: 0; border-radius: 12px; cursor: pointer;
+    font: 700 19px var(--font-ui); color: var(--ink); background: var(--long);
+    transition: transform 0.08s;
+  }
+  .order[data-side="short"] { background: var(--short); }
+  .order:active { transform: scale(0.985); }
+  .order .num { font-family: var(--font-num); font-weight: 600; }
+  .note { min-height: 20px; margin: 8px 4px 0; color: var(--muted); font-size: 14px; }
+
+  footer.site { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--muted); font-size: 14px; }
+  footer.site p { margin: 0 0 6px; max-width: 64em; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .coin .last, .order { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site">
+    <svg viewBox="0 0 512 512" aria-hidden="true">
+      <rect width="512" height="512" rx="112" fill="#0E1116"/>
+      <g stroke-width="16" stroke-linecap="round">
+        <line x1="152" y1="196" x2="152" y2="364" stroke="#F6465D"/>
+        <line x1="256" y1="148" x2="256" y2="332" stroke="#7C8CFF"/>
+        <line x1="360" y1="100" x2="360" y2="300" stroke="#2EBD85"/>
+      </g>
+      <rect x="116" y="224" width="72" height="104" rx="14" fill="#F6465D"/>
+      <rect x="220" y="180" width="72" height="120" rx="14" fill="#7C8CFF"/>
+      <rect x="324" y="128" width="72" height="140" rx="14" fill="#2EBD85"/>
+    </svg>
+    <span class="name">HP Terminal</span>
+  </header>
+
+  <main>
+    <section aria-labelledby="title">
+      <h1 id="title">Trade Hyperliquid perps from your phone.</h1>
+      <p class="lede"><strong>HP Terminal</strong> is a mobile-first trading terminal for Hyperliquid. Crypto and stock perps in one place, one ticket that fits your thumb, and the fee shown before every order.</p>
+      <ul class="facts">
+        <li>Your account stays yours. Orders go to your own Hyperliquid account, and HP Terminal never holds your funds.</li>
+        <li>Crypto and US stock markets in one list, each with its logo, live price and one market per asset.</li>
+        <li>Three looks for three ways to trade: Column, Cockpit and Hold.</li>
+      </ul>
+      <p class="status"><span class="badge">Testnet</span> In private testing on Hyperliquid testnet.</p>
+    </section>
+
+    <section class="ticket" aria-label="Order ticket preview">
+      <div class="coin">
+        <span class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path fill="#fff" d="M15.6 10.6c.5-1.6-.6-2.5-2.2-3l.5-2-1.2-.3-.5 1.9-1-.2.5-2-1.2-.3-.5 2-2.4-.6-.3 1.3s.9.2.9.2c.5.1.6.5.6.7l-1.4 5.7c-.1.2-.3.4-.7.3l-.9-.2-.6 1.4 2.3.6-.5 2 1.2.3.5-2 1 .2-.5 2 1.2.3.5-2c2.1.4 3.6.2 4.3-1.6.5-1.5 0-2.3-1.1-2.9.8-.2 1.4-.7 1.5-1.8zm-2.8 3.9c-.4 1.5-2.8.7-3.6.5l.6-2.6c.8.2 3.4.6 3 2.1zm.4-4c-.3 1.4-2.3.7-3 .5l.6-2.3c.7.2 2.8.5 2.4 1.8z"/></svg>
+        </span>
+        <span>
+          <span class="sym">BTC</span><br>
+          <span class="sub">Bitcoin perp</span>
+        </span>
+        <span class="px">
+          <span class="last" id="last">75,145</span><br>
+          <span class="chg" id="chg">−0.92%</span>
+        </span>
+      </div>
+
+      <div class="sides" role="group" aria-label="Side">
+        <button type="button" data-side="long" aria-pressed="true">Long ▲</button>
+        <button type="button" data-side="short" aria-pressed="false">Short ▼</button>
+      </div>
+
+      <div class="row">
+        <span class="label">Margin<b id="marginShown">$25</b></span>
+        <div class="chips" role="group" aria-label="Margin" id="margins">
+          <button type="button" aria-pressed="false" data-v="10">$10</button>
+          <button type="button" aria-pressed="true" data-v="25">$25</button>
+          <button type="button" aria-pressed="false" data-v="50">$50</button>
+          <button type="button" aria-pressed="false" data-v="100">$100</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="label">Leverage</span>
+        <div class="chips" role="group" aria-label="Leverage" id="levs">
+          <button type="button" aria-pressed="true" data-v="1">1×</button>
+          <button type="button" aria-pressed="false" data-v="2">2×</button>
+          <button type="button" aria-pressed="false" data-v="5">5×</button>
+          <button type="button" aria-pressed="false" data-v="10">10×</button>
+        </div>
+      </div>
+
+      <div class="fee"><span>Fee</span><span id="fee">$0.02</span></div>
+      <button type="button" class="order" id="order" data-side="long">Long <span class="num" id="orderLev">1×</span> · <span class="num" id="orderMargin">$25</span> ▲</button>
+      <p class="note" id="note" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer class="site">
+    <p>HP Terminal is an independent app that trades through Hyperliquid's public API. It is not affiliated with or endorsed by Hyperliquid.</p>
+    <p>© 2026 HP Terminal</p>
+  </footer>
+</div>
+
+<script>
+  // The ticket works like the app's, and sends nothing.
+  const state = { side: "long", margin: 25, lev: 1 };
+  const $ = (id) => document.getElementById(id);
+  // Hyperliquid's taker fee (0.045%) plus ours (0.04%), on the position's size.
+  const FEE = 0.00085;
+
+  function render() {
+    document.querySelectorAll(".sides button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.side === state.side)));
+    document.querySelectorAll("#margins button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.v === state.margin)));
+    document.querySelectorAll("#levs button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.v === state.lev)));
+    const order = $("order");
+    order.dataset.side = state.side;
+    order.firstChild.textContent = state.side === "long" ? "Long " : "Short ";
+    order.lastChild.textContent = state.side === "long" ? " ▲" : " ▼";
+    $("orderLev").textContent = state.lev + "×";
+    $("orderMargin").textContent = "$" + state.margin;
+    $("marginShown").textContent = "$" + state.margin;
+    $("fee").textContent = "$" + (state.margin * state.lev * FEE).toFixed(2);
+    $("note").textContent = "";
+  }
+
+  document.querySelector(".sides").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    state.side = b.dataset.side; render();
+  });
+  $("margins").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    state.margin = +b.dataset.v; render();
+  });
+  $("levs").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    state.lev = +b.dataset.v; render();
+  });
+  $("order").addEventListener("click", () => {
+    $("note").textContent = "This is a preview, so nothing was sent. The app opens to testers soon.";
+  });
+
+  // A price that moves like a live one, unless the reader prefers less motion.
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    let px = 75145;
+    const open = 75842;
+    setInterval(() => {
+      const step = Math.round((Math.random() - 0.5) * 24);
+      if (!step) return;
+      px += step;
+      const el = $("last");
+      el.textContent = px.toLocaleString("en-US");
+      el.classList.remove("up", "down");
+      void el.offsetWidth;
+      el.classList.add(step > 0 ? "up" : "down");
+      setTimeout(() => el.classList.remove("up", "down"), 400);
+      const chg = ((px - open) / open) * 100;
+      $("chg").textContent = (chg < 0 ? "−" : "+") + Math.abs(chg).toFixed(2) + "%";
+      $("chg").style.color = chg < 0 ? "var(--short-text)" : "var(--long)";
+    }, 1600);
+  }
+</script>
+</body>
+</html>
